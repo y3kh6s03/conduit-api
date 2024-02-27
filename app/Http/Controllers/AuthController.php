@@ -17,7 +17,7 @@ class AuthController extends Controller
     {
         $req->validate([
             'user.username' => 'required|string|min:3|max:255|',
-            'user.email' => 'required|email:rfc',
+            'user.email' => 'required',
             'user.password' => 'required|string|min:4|max:255|',
         ]);
         $jsonData = $req->json()->all();
@@ -26,11 +26,31 @@ class AuthController extends Controller
         $password = $jsonData['user']['password'];
 
         $user = User::create([
-            'username' => $name,
             'email' => $email,
+            'username' => $name,
             'password' => Hash::make($password),
         ]);
 
-        return response()->json(["user" => $user]);
+        $credentials = ['email' => $email, 'password' => $password];
+
+        if (!$token = auth()->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        return response()->json([
+            "user" => [
+                "email" => $email,
+                "token" => $token,
+                "username" => $name,
+            ]
+        ]);
+    }
+
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
+        ]);
     }
 }
