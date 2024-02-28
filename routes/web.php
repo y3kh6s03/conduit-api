@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +17,7 @@ Route::prefix('api/users')
 });
 
 Route::prefix('api/articles')
-->controller(AuthController::class)
+->controller(ArticleController::class)
 ->name('articles.')
 ->group(function(){
     Route::post('/','store')->name('store');
