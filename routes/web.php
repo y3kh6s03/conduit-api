@@ -12,4 +12,12 @@ Route::prefix('api/users')
 ->name('users.')
 ->group(function(){
     Route::post('/','register')->name('register');
+    Route::post('/login','login')->name('login');
+});
+
+Route::prefix('api/articles')
+->controller(AuthController::class)
+->name('articles.')
+->group(function(){
+    Route::post('/','store')->name('store');
 });

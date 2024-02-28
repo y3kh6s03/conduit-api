@@ -45,6 +45,31 @@ class AuthController extends Controller
         ]);
     }
 
+    public function login(Request $req)
+    {
+        $req->validate([
+            'user.email' => ['required'],
+            'user.password' => ['required', 'string', 'min:4', 'max:255']
+        ]);
+        $jsonData = $req->json()->all();
+        $email = $jsonData['user']['email'];
+        $password = $jsonData['user']['password'];
+        $credentials = ['email' => $email, 'password' => $password];
+        if (!$token = auth()->attempt($credentials)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        $user = auth()->user();
+        $jwtToken = $this->respondWithToken($token)->original['access_token'];
+
+        return response()->json([
+            "user" => [
+                "email" => $email,
+                "token" => $jwtToken,
+                "username" => $user->name
+            ]
+        ]);
+    }
+
     protected function respondWithToken($token)
     {
         return response()->json([
