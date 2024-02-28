@@ -16,9 +16,9 @@ Route::prefix('api/users')
     Route::post('/login','login')->name('login');
 });
 
-Route::prefix('api/articles')
-->controller(ArticleController::class)
-->name('articles.')
-->group(function(){
-    Route::post('/','store')->name('store');
-});
+// Route::prefix('api/articles')
+// ->controller(ArticleController::class)
+// ->name('articles.')
+// ->group(function(){
+//     Route::post('/','store')->name('store');
+// });
