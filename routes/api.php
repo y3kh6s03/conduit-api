@@ -22,17 +22,20 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::prefix('users')
-->controller(AuthController::class)
-->name('users.')
-->group(function(){
-    Route::post('/','register')->name('register');
-    Route::post('/login','login')->name('login');
-});
+    ->controller(AuthController::class)
+    ->name('users.')
+    ->group(function () {
+        Route::post('/', 'register')->name('register');
+        Route::post('/login', 'login')->name('login');
+    });
 
 Route::prefix('articles')
-->controller(ArticleController::class)
-->middleware('auth:api')
-->name('articles.')
-->group(function(){
-    Route::post('/','store')->name('store');
-});
+    ->controller(ArticleController::class)
+    ->name('articles.')
+    ->group(function () {
+        Route::get('/{slug}', 'show')->name('show');
+
+        Route::middleware('auth:api')->group(function () {
+            Route::post('/', 'store')->name('store');
+        });
+    });
