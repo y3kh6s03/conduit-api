@@ -13,7 +13,15 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
+            $table->string('title', 255);
+            $table->string('description', 255);
+            $table->text('body');
             $table->timestamps();
+
+            $table->unsignedBigInteger('user_id');
+            // $table->unsignedBigInteger('postTag_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            // $table->foreign('postTag_id')->references('id')->on('postTags')->onDelete('cascade');
         });
     }
 
