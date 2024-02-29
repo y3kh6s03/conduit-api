@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 class ArticleController extends Controller
 {
@@ -100,14 +101,23 @@ class ArticleController extends Controller
         $article['tagList'] = $tagNames;
 
         $user = auth()->user();
-        $article['author']=$user;
+        $article['author'] = $user;
 
         return response()->json([
             "article" => $article
         ]);
     }
+
+    public function delete($slug): Response
+    {
+        $article = Article::where('slug', $slug)->first();
+        if(!$article){
+            return response()->json(['message' => 'Article not found'], 404);
+        }
+        $article->tags()->detach();
+        $article->delete();
+        return response()->json([
+            $article
+        ]);
+    }
 }
-
-
-// タグリストを取得する
-// articleのidからpost_tagテーブルから取得できる

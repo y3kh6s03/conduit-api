@@ -9,11 +9,6 @@ class Article extends Model
 {
     use HasFactory;
 
-    // const CREATED_AT = 'createdAt';
-    // const UPDATED_AT = 'updatedAt';
-
-    // protected $dateFormat = 'U';
-
     protected $fillable = [
         'user_id',
         'title',
@@ -21,16 +16,10 @@ class Article extends Model
         'description',
         'body'
     ];
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class, 'article_tags');
+    }
 }
 
-// タグ情報たちを取得する
-// そのタグ情報をもとにデータを取得する
-// ・データが取得できなかったら新しくタグテーグルにデータを挿入する
-//  そのデータを作成したら、idを取得して中間テーブルに保存していく
-// ・データが取得できたら、中間テーブルに保存していく
-
-// 上記を実装するために
-// ・タグテーブルを作成する
-//  id,tagName,
-//  .中感テーブルを作成する
-//  post_id、tag_idを保存する
