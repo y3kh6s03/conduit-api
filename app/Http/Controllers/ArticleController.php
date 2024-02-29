@@ -38,23 +38,49 @@ class ArticleController extends Controller
         foreach ($tagNames as $tagName) {
             $tagData = Tag::where('name', $tagName)->first();
             if (!$tagData) {
-                Tag::create([
+                $createTag = Tag::create([
                     'name' => $tagName
                 ]);
+                $articleTags[] = ArticleTag::create([
+                    'article_id' => $article->id,
+                    'tag_id' => $createTag->id,
+                ]);
             } else {
-                $articleTags[]=ArticleTag::create([
-                    'article_id'=>$article->id,
-                    'tag_id'=>$tagData->id,
+                $articleTags[] = ArticleTag::create([
+                    'article_id' => $article->id,
+                    'tag_id' => $tagData->id,
                 ]);
             }
         }
 
-        $article['tagList']=$tagNames;
-        $article['author']=$user;
+        $article['tagList'] = $tagNames;
+        $article['author'] = $user;
 
 
         return response()->json([
             "article" => $article
         ]);
     }
+
+    public function show($slug)
+    {
+        $article = Article::where('slug', $slug)->first();
+        $article_id = $article->id;
+
+        $tags = ArticleTag::where('article_id', $article_id)->get();
+        foreach($tags as $tag){
+            $tagData=Tag::find($tag->tag_id);
+            $tagNames[]=$tagData['name'];
+        }
+        $user = auth()->user();
+        $article['tagList']=$tagNames;
+        $article['author']=$user;
+        return response()->json([
+            "article" => $article
+        ]);
+    }
 }
+
+
+// タグリストを取得する
+// articleのidからpost_tagテーブルから取得できる
