@@ -6,12 +6,13 @@ use App\Models\Article;
 use App\Models\ArticleTag;
 use App\Models\Tag;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ArticleController extends Controller
 {
-    public function store(Request $req)
+    public function store(Request $req): JsonResponse
     {
         $req->validate([
             'article.title' => ['required', 'string', 'min:10', 'max:255'],
@@ -62,19 +63,45 @@ class ArticleController extends Controller
         ]);
     }
 
-    public function show($slug)
+    public function show($slug): JsonResponse
     {
         $article = Article::where('slug', $slug)->first();
         $article_id = $article->id;
 
         $tags = ArticleTag::where('article_id', $article_id)->get();
-        foreach($tags as $tag){
-            $tagData=Tag::find($tag->tag_id);
-            $tagNames[]=$tagData['name'];
+        foreach ($tags as $tag) {
+            $tagData = Tag::find($tag->tag_id);
+            $tagNames[] = $tagData['name'];
         }
+        $article['tagList'] = $tagNames;
         $user = auth()->user();
-        $article['tagList']=$tagNames;
+        $article['author'] = $user;
+        return response()->json([
+            "article" => $article
+        ]);
+    }
+
+    public function update(Request $req, $slug): JsonResponse
+    {
+        $updateJsonData = $req->json()->all();
+        $updateColumn = key($updateJsonData['article']);
+        $data = $updateJsonData['article'][$updateColumn];
+        $article = Article::where('slug', $slug)->first();
+        $article->$updateColumn = $data;
+        $article->save();
+
+        $article_id = $article->id;
+
+        $tags = ArticleTag::where('article_id', $article_id)->get();
+        foreach ($tags as $tag) {
+            $tagData = Tag::find($tag->tag_id);
+            $tagNames[] = $tagData['name'];
+        }
+        $article['tagList'] = $tagNames;
+
+        $user = auth()->user();
         $article['author']=$user;
+
         return response()->json([
             "article" => $article
         ]);
