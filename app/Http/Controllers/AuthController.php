@@ -66,7 +66,7 @@ class AuthController extends Controller
             "user" => [
                 "email" => $email,
                 "token" => $jwtToken,
-                "username" => $user->name
+                "username" => $user->username
             ]
         ]);
     }

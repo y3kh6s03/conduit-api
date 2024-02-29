@@ -9,6 +9,11 @@ class Article extends Model
 {
     use HasFactory;
 
+    // const CREATED_AT = 'createdAt';
+    // const UPDATED_AT = 'updatedAt';
+
+    // protected $dateFormat = 'U';
+
     protected $fillable = [
         'user_id',
         'title',
@@ -16,3 +21,7 @@ class Article extends Model
         'body'
     ];
 }
+
+
+// タグをつけなければならない
+// このリクエストを確認してどのようにタグを取得しようとしているか確認しよう
