@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class AuthController extends Controller
 {
@@ -13,7 +14,7 @@ class AuthController extends Controller
         $this->middleware('auth:api', ['except' => ['register', 'login', 'respondWithToken']]);
     }
 
-    public function register(Request $req)
+    public function register(Request $req): JsonResponse
     {
         $req->validate([
             'user.username' => 'required|string|min:3|max:255|',
@@ -45,7 +46,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function login(Request $req)
+    public function login(Request $req): JsonResponse
     {
         $req->validate([
             'user.email' => ['required'],
@@ -71,7 +72,7 @@ class AuthController extends Controller
         ]);
     }
 
-    protected function respondWithToken($token)
+    protected function respondWithToken($token): JsonResponse
     {
         return response()->json([
             'access_token' => $token,
