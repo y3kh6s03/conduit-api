@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
+use App\Services\GenerateResArticleService;
 
 class ArticleController extends Controller
 {
@@ -38,47 +39,29 @@ class ArticleController extends Controller
 
         $tagNames = $jsonData['article']['tagList'];
         foreach ($tagNames as $tagName) {
-            $tagData = Tag::where('name', $tagName)->first();
-            if (!$tagData) {
-                $createTag = Tag::create([
-                    'name' => $tagName
-                ]);
-                $articleTags[] = ArticleTag::create([
-                    'article_id' => $article->id,
-                    'tag_id' => $createTag->id,
-                ]);
-            } else {
-                $articleTags[] = ArticleTag::create([
-                    'article_id' => $article->id,
-                    'tag_id' => $tagData->id,
-                ]);
-            }
+            $tagData = Tag::firstOrCreate([
+                'name' => $tagName
+            ]);
+            $articleTags[] = ArticleTag::create([
+                'article_id' => $article->id,
+                'tag_id' => $tagData->id,
+            ]);
         }
 
-        $article['tagList'] = $tagNames;
-        $article['author'] = $user;
-
+        $responseData = GenerateResArticleService::generateResArticle($article);
 
         return response()->json([
-            "article" => $article
+            "article" => $responseData
         ]);
     }
 
     public function show($slug): JsonResponse
     {
         $article = Article::where('slug', $slug)->first();
-        $article_id = $article->id;
+        $responseData = GenerateResArticleService::generateResArticle($article);
 
-        $tags = ArticleTag::where('article_id', $article_id)->get();
-        foreach ($tags as $tag) {
-            $tagData = Tag::find($tag->tag_id);
-            $tagNames[] = $tagData['name'];
-        }
-        $article['tagList'] = $tagNames;
-        $user = auth()->user();
-        $article['author'] = $user;
         return response()->json([
-            "article" => $article
+            "article" => $responseData
         ]);
     }
 
@@ -90,34 +73,21 @@ class ArticleController extends Controller
         $article = Article::where('slug', $slug)->first();
         $article->$updateColumn = $data;
         $article->save();
-
-        $article_id = $article->id;
-
-        $tags = ArticleTag::where('article_id', $article_id)->get();
-        foreach ($tags as $tag) {
-            $tagData = Tag::find($tag->tag_id);
-            $tagNames[] = $tagData['name'];
-        }
-        $article['tagList'] = $tagNames;
-
-        $user = auth()->user();
-        $article['author'] = $user;
+        $responseData = GenerateResArticleService::generateResArticle($article);
 
         return response()->json([
-            "article" => $article
+            "article" => $responseData
         ]);
     }
 
     public function delete($slug): Response
     {
         $article = Article::where('slug', $slug)->first();
-        if(!$article){
+        if (!$article) {
             return response()->json(['message' => 'Article not found'], 404);
         }
         $article->tags()->detach();
         $article->delete();
-        return response()->json([
-            $article
-        ]);
+        return response()->noContent();
     }
 }

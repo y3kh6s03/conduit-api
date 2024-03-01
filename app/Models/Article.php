@@ -21,5 +21,9 @@ class Article extends Model
     {
         return $this->belongsToMany(Tag::class, 'article_tags');
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
 
