@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreArticleRequest;
+use App\Http\Requests\UpdateArticleRequest;
 use App\Models\Article;
 use App\Models\ArticleTag;
 use App\Models\Tag;
@@ -14,14 +16,8 @@ use App\Services\GenerateResArticleService;
 
 class ArticleController extends Controller
 {
-    public function store(Request $req): JsonResponse
+    public function store(StoreArticleRequest $req): JsonResponse
     {
-        $req->validate([
-            'article.title' => ['required', 'string', 'min:10', 'max:255'],
-            'article.description' => ['required', 'string', 'min:10', 'max:255'],
-            'article.body' => ['required'],
-        ]);
-
         $jsonData = $req->json()->all();
         $title = $jsonData['article']['title'];
         $slug = Str::slug($title);
@@ -65,12 +61,16 @@ class ArticleController extends Controller
         ]);
     }
 
-    public function update(Request $req, $slug): JsonResponse
+    public function update(UpdateArticleRequest $req, $slug): JsonResponse
     {
         $updateJsonData = $req->json()->all();
         $updateColumn = key($updateJsonData['article']);
         $data = $updateJsonData['article'][$updateColumn];
         $article = Article::where('slug', $slug)->first();
+        if ($updateColumn === 'title') {
+            $slug = Str::slug($data);
+            $article->slug = $slug;
+        }
         $article->$updateColumn = $data;
         $article->save();
         $responseData = GenerateResArticleService::generateResArticle($article);
