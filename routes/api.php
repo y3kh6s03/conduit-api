@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\FavoriteController;
+use App\Models\Favorite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -39,5 +41,15 @@ Route::prefix('articles')
             Route::post('/', 'store')->name('store');
             Route::put('/{slug}', 'update')->name('update');
             Route::delete('/{slug}', 'delete')->name('delete');
+        });
+    });
+
+Route::prefix('articles/{slug}/favorite')
+    ->controller(FavoriteController::class)
+    ->name('favorite.')
+    ->group(function () {
+        Route::middleware('auth:api')->group(function () {
+            Route::post('/', 'store')->name('store');
+            Route::delete('/', 'delete')->name('delete');
         });
     });
