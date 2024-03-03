@@ -73,6 +73,7 @@ class ArticleController extends Controller
         }
         $article->$updateColumn = $data;
         $article->save();
+
         $responseData = GenerateResArticleService::generateResArticle($article);
 
         return response()->json([
